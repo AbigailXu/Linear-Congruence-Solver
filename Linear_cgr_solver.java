@@ -5,7 +5,7 @@
  */
 package math_calculators;
 
-import java.util.Scanner;
+import java.io.*;
 
 /**
  *
@@ -15,26 +15,68 @@ public class Linear_cgr_solver {
 
     /**
      * @param args the command line arguments
+     * @throws java.io.IOException
      */
-    public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        int pairs=0;
+    public static void main(String[] args) throws IOException
+    {
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int pairs = 0;
+        int n1 = 0, n2 = 0, rem = 0;
+        
+        int args_length = args.length;
         
         System.out.println("------------------------------------------------------------");
         System.out.println("|                Linear Congruence Solver                  |");
         System.out.println("------------------------------------------------------------");
         
-        System.out.println("                    solve:    ax ≡ c (mod m)\n  "
-                         + "linear Diophantine form:    ax + my = c");
+        System.out.println("""
+                                               solve:    ax \u2261 c (mod m)
+                             linear Diophantine form:    ax + my = c""");
         System.out.println("------------------------------------------------------------");
-        System.out.print("  (I)     Enter variables:    a = ");
-        int n1 = input.nextInt();
-        System.out.print("                              m = ");
-        int n2 = input.nextInt();
-        System.out.print("                              c = ");
-        int rem = input.nextInt();
-        System.out.println("------------------------------------------------------------");
-        int gcd = getGCD(n1,n2);
+        
+        if(args_length == 0)
+        {
+            System.out.print("  (I)     Enter variables:    a = ");
+
+            try{
+                n1 = Integer.parseInt(br.readLine());
+            }catch(NumberFormatException e)
+            {
+                System.out.println(e);
+            }
+
+            System.out.print("                              m = ");
+            try{
+                n2 = Integer.parseInt(br.readLine());
+            }catch(NumberFormatException e)
+            {
+                System.out.println(e);
+            }
+
+            System.out.print("                              c = ");
+            try{
+                rem = Integer.parseInt(br.readLine());
+            }catch(NumberFormatException e)
+            {
+                System.out.println(e);
+            }
+
+            System.out.println("------------------------------------------------------------");
+        }else
+        {
+            if(args_length < 3)
+            {
+                System.out.println("too few arguments");
+                System.exit(-1);
+            }
+            
+            n1 = Integer.parseInt(args[0]);
+            n2 = Integer.parseInt(args[1]);
+            rem = Integer.parseInt(args[2]);
+        }
+        
+        int gcd = getGCD(n1, n2);
         System.out.println("  (II)             We get:    gcd("+n1+", "+n2+") = "+gcd);
         if (rem % gcd == 0) {
             System.out.println("                              and "+ gcd + " | "+ rem);
@@ -72,7 +114,8 @@ public class Linear_cgr_solver {
         System.out.println("  "+ s2 + "\t" + t2 + "\t" + r2 + "\t" + q2);
         
         int times = 0;
-        while (times<pairs){
+        while (times<pairs)
+        {
             System.out.printf("\n%s%d%s%d \t%5s%d%s%d", 
                     "X", times, " = ", ((s1*(rem/r1)) + (times*s2)), 
                     "Y", times, " = ", ((t1*(rem/r1)) + (times*t2)));
@@ -80,11 +123,11 @@ public class Linear_cgr_solver {
         }
         times--;
         System.out.println("------------------------------------------------------------");
-        int result1 = ((n1*s1)+n2*t1);
+        int result1 = ((n1*s1) + n2*t1);
         int mult = rem / result1;
         int sp = s1 * mult;
         int tp = t1 * mult;
-        int resultp = ((n1*sp)+n2*tp);
+        int resultp = ((n1*sp) + n2*tp);
         int sp_factor = getFactor(sp, n2);
         int factored_rem = (sp + sp_factor * n2);
         
@@ -104,15 +147,21 @@ public class Linear_cgr_solver {
         System.out.println("                               x ≡ " + factored_rem + " (mod "+n2+")");
     }
     
-    public static int getGCD (int n1, int n2){
-        int div = 0;
-        int nextDiv = div;
-        while (true){
-            nextDiv = div + 1;
-            if ((n1%nextDiv == 0) && (n2%nextDiv == 0)) div=nextDiv;
-            else break;
+    public static int getGCD(int n1, int n2)
+    {
+        int temp;
+        int gcd = 0;
+        
+        while(n2 != 0)
+        {
+            temp = n2;
+            n2 = n1 % n2;
+            n1 = temp;
         }
-        return div;
+        
+        gcd = n1;
+        
+        return gcd;
     }
     
     public static int getFactor(int n1, int n2){
